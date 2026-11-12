@@ -10,6 +10,8 @@ return function()
   assert(type(db.channelMessages) == "table")
   assert(type(db.filters) == "table" and type(db.filters.ignored) == "table", "new accounts start with an ignore list")
   assert(type(db.filters.rules) == "table" and next(db.filters.rules) == nil, "new accounts start with no keyword rules")
+  assert(type(db.conversationLinks) == "table" and next(db.conversationLinks.links) == nil, "new accounts start with no conversation links")
+  assert(type(db.conversationLinks.unlinked) == "table", "new accounts start with no split pairs")
 
   local migrated = Migrations.Apply(nil, Schema)
   assert(migrated.schemaVersion == Migrations.CURRENT_VERSION)

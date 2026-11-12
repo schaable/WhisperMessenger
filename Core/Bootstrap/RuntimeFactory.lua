@@ -12,6 +12,7 @@ local MessageReactions = ns.MessageReactions or require("WhisperMessenger.Model.
 local OutgoingDelivery = ns.OutgoingDelivery or require("WhisperMessenger.Model.OutgoingDelivery")
 local IgnoreList = ns.IgnoreList or require("WhisperMessenger.Model.Filters.IgnoreList")
 local RulePresets = ns.RulePresets or require("WhisperMessenger.Model.Filters.RulePresets")
+local ConversationLinks = ns.ConversationLinks or require("WhisperMessenger.Model.ConversationLinks")
 local RuntimeFactory = {}
 
 local function currentTime()
@@ -92,6 +93,10 @@ function RuntimeFactory.CreateRuntimeState(accountState, characterState, localPr
   IgnoreList.Sweep(filters, nowValue)
   IgnoreList.ClearBlockedCounts(filters)
   RulePresets.Seed(filters)
+
+  -- Character threads shown inside a Battle.net friend's thread. Runs after
+  -- the expiry sweep so automatic links whose threads both expired go too.
+  ConversationLinks.Prune(ConversationLinks.Ensure(accountState), store.conversations)
 
   -- Channels the player turned into chats; none until picked in Options.
   accountState.settings = accountState.settings or {}

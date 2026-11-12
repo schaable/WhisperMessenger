@@ -7,6 +7,7 @@ local Common = ns.BootstrapLifecycleHandlersCommon
   or (type(require) == "function" and require("WhisperMessenger.Core.Bootstrap.LifecycleHandlers.Common"))
   or nil
 local ConversationMerge = ns.ConversationMerge or require("WhisperMessenger.Model.ConversationMerge")
+local ConversationLinks = ns.ConversationLinks or require("WhisperMessenger.Model.ConversationLinks")
 local LockdownReplay = ns.BootstrapLockdownReplay or require("WhisperMessenger.Core.Bootstrap.LockdownReplay")
 local OnlineNotify = ns.BootstrapLifecycleHandlersOnlineNotify or require("WhisperMessenger.Core.Bootstrap.LifecycleHandlers.OnlineNotify")
 local ZoneNotify = ns.BootstrapLifecycleHandlersZoneNotify or require("WhisperMessenger.Core.Bootstrap.LifecycleHandlers.ZoneNotify")
@@ -107,6 +108,10 @@ local function applyRekeyMappings(runtime, mappings)
       end
       onlineWatch[oldKey] = nil
     end
+  end
+  local links = runtime.accountState and runtime.accountState.conversationLinks
+  if links ~= nil then
+    ConversationLinks.Rekey(links, mappings)
   end
 end
 

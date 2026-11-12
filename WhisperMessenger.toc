@@ -64,6 +64,7 @@ Model/ProfileCharacter.lua
 Model/ProfileLinks.lua
 Model/Retention.lua
 Model/ConversationMerge.lua
+Model/ConversationLinks.lua
 Model/ConversationStore/StoreRetention.lua
 Model/ConversationStore/MessageMetadata.lua
 Model/ConversationStore/RepeatCollapse.lua
