@@ -102,19 +102,27 @@ function ConversationLinks.PrimaryOf(state, conversations, key)
   return entry.primaryKey
 end
 
--- Member keys shown inside primaryKey's thread, sorted.
-function ConversationLinks.MembersOf(state, conversations, primaryKey)
-  local members = {}
-  if conversations[primaryKey] == nil then
-    return members
-  end
+-- Every grouped thread in one pass: { [primaryKey] = sorted member keys }.
+-- Same rule as PrimaryOf: a pair groups only while both threads exist.
+function ConversationLinks.Groups(state, conversations)
+  local groups = {}
   for memberKey, entry in pairs(state.links) do
-    if type(entry) == "table" and entry.primaryKey == primaryKey and conversations[memberKey] ~= nil then
+    local primaryKey = type(entry) == "table" and entry.primaryKey
+    if primaryKey and conversations[memberKey] ~= nil and conversations[primaryKey] ~= nil then
+      local members = groups[primaryKey] or {}
+      groups[primaryKey] = members
       members[#members + 1] = memberKey
     end
   end
-  table.sort(members)
-  return members
+  for _, members in pairs(groups) do
+    table.sort(members)
+  end
+  return groups
+end
+
+-- Member keys shown inside primaryKey's thread, sorted.
+function ConversationLinks.MembersOf(state, conversations, primaryKey)
+  return ConversationLinks.Groups(state, conversations)[primaryKey] or {}
 end
 
 -- Moves map[oldKey] to map[newKey]; an entry already on newKey wins.

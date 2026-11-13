@@ -112,6 +112,26 @@ return function()
     assert(#members == 0, "no primary thread, no members")
   end
 
+  -- test_groups_maps_each_primary_to_its_sorted_members
+  do
+    local state = newState()
+    ConversationLinks.Link(state, CHAR, FRIEND, "auto", 100)
+    ConversationLinks.Link(state, ALT, FRIEND, "manual", 100)
+    ConversationLinks.Link(state, "wow::WOW::thrallchar", OTHER_FRIEND, "auto", 100)
+    local groups = ConversationLinks.Groups(state, conversationsFor({ CHAR, ALT, FRIEND, "wow::WOW::thrallchar", OTHER_FRIEND }))
+    assert(#groups[FRIEND] == 2 and groups[FRIEND][1] == ALT and groups[FRIEND][2] == CHAR, "friend's members, sorted")
+    assert(#groups[OTHER_FRIEND] == 1 and groups[OTHER_FRIEND][1] == "wow::WOW::thrallchar", "other friend's member")
+  end
+
+  -- test_groups_leave_out_pairs_missing_a_thread
+  do
+    local state = newState()
+    ConversationLinks.Link(state, CHAR, FRIEND, "auto", 100)
+    ConversationLinks.Link(state, ALT, OTHER_FRIEND, "manual", 100)
+    local groups = ConversationLinks.Groups(state, conversationsFor({ CHAR, OTHER_FRIEND }))
+    assert(next(groups) == nil, "no group while the primary or the member thread is gone")
+  end
+
   -- test_link_refuses_chains
   do
     local state = { links = { [FRIEND] = { primaryKey = OTHER_FRIEND, source = "manual" } }, unlinked = {} }

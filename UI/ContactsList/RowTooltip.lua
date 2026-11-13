@@ -81,7 +81,9 @@ function RowTooltip.Lines(item, hideMessagePreview)
     personLines(lines, item)
   end
   if not hideMessagePreview then
-    add(lines, ReactionAssets.FormatTextForDisplay(AddonGreetingText.ForPreview(item.conversation, item.lastPreview)), MESSAGE_COLOR)
+    -- A linked thread's newest line may come from a character thread.
+    local preview = AddonGreetingText.ForPreview(item.previewConversation or item.conversation, item.lastPreview)
+    add(lines, ReactionAssets.FormatTextForDisplay(preview), MESSAGE_COLOR)
   end
   local unread = tonumber(item.unreadCount) or 0
   if not isGroup and unread > 0 then

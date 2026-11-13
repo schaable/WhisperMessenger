@@ -229,7 +229,7 @@ function RowElements.updatePreview(row, item, parentWidth, hideMessagePreview, s
     row.preview:SetText(GlyphCoverage.Apply(row.preview, draftPreviewText(item.draft, hideMessagePreview)))
     return
   end
-  local preview = AddonGreetingText.ForPreview(item.conversation, item.lastPreview)
+  local preview = AddonGreetingText.ForPreview(item.previewConversation or item.conversation, item.lastPreview)
   row.preview:SetText(GlyphCoverage.Apply(row.preview, hideMessagePreview and "" or ReactionAssets.FormatTextForDisplay(preview)))
 end
 

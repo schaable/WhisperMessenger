@@ -8,6 +8,7 @@ local DataBuilder = {}
 local ConversationSnapshot = ns.ConversationSnapshot or require("WhisperMessenger.Model.ConversationSnapshot")
 local DisplayName = ns.DisplayName or require("WhisperMessenger.Util.DisplayName")
 local SnapshotCache = ns.ContactsListSnapshotCache or require("WhisperMessenger.UI.ContactsList.SnapshotCache")
+local LinkedRows = ns.ContactsListLinkedRows or require("WhisperMessenger.UI.ContactsList.LinkedRows")
 
 local function compareItems(left, right)
   local leftPinned = left.pinned and true or false
@@ -119,6 +120,7 @@ function DataBuilder.BuildItemsForProfile(savedState, localProfileId, cache, dir
   local bnetPrefix = "bnet::"
   local wowPrefix = "wow::"
   local playerClasses = savedState.playerClasses or {}
+  local linked = LinkedRows.Prepare(savedState)
 
   local conversations = savedState.conversations or {}
   for conversationKey, conversation in pairs(conversations) do
@@ -193,9 +195,14 @@ function DataBuilder.BuildItemsForProfile(savedState, localProfileId, cache, dir
       end
       snapshot.ownerProfileId = foreignOwner
       snapshot.ownerClassTag = ownerClassTag
-      table.insert(items, snapshot)
       if snapshot.channel == "BN" then
         battleTags[#battleTags + 1] = snapshot.displayName
+      end
+      -- A linked member's card is still built (above) so the cache stays
+      -- current for when it is unlinked; only its row is left out.
+      if not LinkedRows.IsHidden(linked, conversationKey) then
+        LinkedRows.Apply(linked, snapshot)
+        table.insert(items, snapshot)
       end
     end
   end

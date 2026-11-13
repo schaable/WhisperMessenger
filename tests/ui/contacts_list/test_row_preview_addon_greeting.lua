@@ -13,6 +13,35 @@ local function taggedItem()
   return { conversationKey = "wow::customer", displayName = "Customer", lastPreview = TEXT, conversation = conversation }
 end
 
+-- A Battle.net friend's row whose newest line came from a linked character
+-- thread: the preview is that thread's last line, not the friend's.
+local function linkedItem()
+  local tagged = taggedItem()
+  local friend = { messages = { { text = "older", direction = "in", kind = "user" } } }
+  tagged.conversation, tagged.previewConversation = friend, tagged.conversation
+  return tagged
+end
+
+local function test_linked_row_preview_names_craft_alert()
+  local factory = FakeUI.NewFactory()
+  local parent = factory.CreateFrame("Frame", nil, nil)
+  parent:SetSize(260, 400)
+  local row = factory.CreateFrame("Frame", nil, parent)
+  row.classIconFrame = factory.CreateFrame("Frame", nil, row)
+  local item = linkedItem()
+  RowElements.createPreview(row, item, 260)
+  RowElements.updatePreview(row, item, 260, false)
+  assert(row.preview.text == SHOWN, "linked row preview renamed, got " .. tostring(row.preview.text))
+end
+
+local function test_linked_rail_tooltip_names_craft_alert()
+  local found = false
+  for _, line in ipairs(RowTooltip.Lines(linkedItem(), false)) do
+    found = found or line.text == SHOWN
+  end
+  assert(found, "linked tooltip last line renamed")
+end
+
 local function test_row_preview_names_craft_alert()
   local factory = FakeUI.NewFactory()
   local parent = factory.CreateFrame("Frame", nil, nil)
@@ -38,4 +67,6 @@ end
 return function()
   test_row_preview_names_craft_alert()
   test_rail_tooltip_names_craft_alert()
+  test_linked_row_preview_names_craft_alert()
+  test_linked_rail_tooltip_names_craft_alert()
 end
