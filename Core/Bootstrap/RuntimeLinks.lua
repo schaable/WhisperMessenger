@@ -30,6 +30,13 @@ function RuntimeLinks.PrimaryOf(runtime, conversationKey)
   return ConversationLinks.PrimaryOf(state, conversations, conversationKey)
 end
 
+-- The record of the thread a key is shown in; nil without one.
+function RuntimeLinks.PrimaryConversation(runtime, conversationKey)
+  local primaryKey = RuntimeLinks.PrimaryOf(runtime, conversationKey)
+  local conversations = primaryKey ~= nil and type(runtime) == "table" and runtime.store and runtime.store.conversations
+  return type(conversations) == "table" and conversations[primaryKey] or nil
+end
+
 -- Sorted keys of the threads shown inside primaryKey's thread.
 function RuntimeLinks.MembersOf(runtime, primaryKey)
   local state, conversations = sources(runtime)

@@ -19,7 +19,8 @@ local IconPosition = ns.BootstrapWindowRuntimeIconPosition or require("WhisperMe
 local PositionSlots = ns.BootstrapWindowRuntimePositionSlots or require("WhisperMessenger.Core.Bootstrap.WindowRuntime.PositionSlots")
 local WhoTriggers = ns.BootstrapWindowRuntimeWhoTriggers or require("WhisperMessenger.Core.Bootstrap.WindowRuntime.WhoTriggers")
 local AddonAlerts = ns.BootstrapWindowRuntimeAddonAlerts or require("WhisperMessenger.Core.Bootstrap.WindowRuntime.AddonAlerts")
-local GameWhisperTab = ns.BootstrapWindowRuntimeGameWhisperTab or require("WhisperMessenger.Core.Bootstrap.WindowRuntime.GameWhisperTab")
+-- stylua: ignore
+local RemoveConversation = ns.BootstrapWindowRuntimeRemoveConversation or require("WhisperMessenger.Core.Bootstrap.WindowRuntime.RemoveConversation")
 local LinkActions = ns.BootstrapWindowRuntimeLinkActions or require("WhisperMessenger.Core.Bootstrap.WindowRuntime.LinkActions")
 
 local WindowCallbacks = {}
@@ -85,16 +86,7 @@ function WindowCallbacks.Create(options)
     if key == nil then
       return
     end
-    local conversation = Store.Find(runtime.store, key)
-    MessageReactions.ClearConversation(runtime, key)
-    Store.Remove(runtime.store, key)
-    if type(accountState.settings) == "table" and accountState.settings.closeGameWhisperTab == true then
-      GameWhisperTab.CloseFor(key, conversation)
-    end
-    if runtime.activeConversationKey == key then
-      runtime.activeConversationKey = nil
-      characterState.activeConversationKey = nil
-    end
+    RemoveConversation.Thread(runtime, accountState, characterState, key)
     refreshWindow()
   end
 

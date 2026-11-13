@@ -5,6 +5,7 @@ end
 
 local EventRouter = ns.EventRouter or require("WhisperMessenger.Core.EventRouter")
 local AlertPolicy = ns.AlertPolicy or require("WhisperMessenger.Model.AlertPolicy")
+local RuntimeLinks = ns.BootstrapRuntimeLinks or require("WhisperMessenger.Core.Bootstrap.RuntimeLinks")
 local LivePresence = ns.LivePresence or require("WhisperMessenger.Model.LivePresence")
 local AddonComm = ns.AddonComm or require("WhisperMessenger.Transport.AddonComm")
 local PendingOutgoing = ns.EventRouterPendingOutgoing or require("WhisperMessenger.Core.EventRouter.PendingOutgoing")
@@ -84,7 +85,8 @@ local function applyIncomingEffects(runtime, result)
   -- just never make noise or open the window.
   local settings = runtime.accountState and runtime.accountState.settings
   local now = type(runtime.now) == "function" and runtime.now() or nil
-  local shouldAlert = AlertPolicy.ShouldAlert(result, settings)
+  local thread = RuntimeLinks.PrimaryConversation(runtime, type(result) == "table" and result.conversationKey or nil)
+  local shouldAlert = AlertPolicy.ShouldAlert(result, settings, thread)
     and not IncomingAlerts.Throttled(runtime, type(result) == "table" and result.conversationKey or nil, now)
   if shouldAlert then
     IncomingAlerts.Notify(settings)

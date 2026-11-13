@@ -6,6 +6,7 @@ end
 local EventBridge = ns.BootstrapEventBridge or require("WhisperMessenger.Core.Bootstrap.EventBridge")
 local BNetResolver = ns.BNetResolver or require("WhisperMessenger.Transport.BNetResolver")
 local AlertPolicy = ns.AlertPolicy or require("WhisperMessenger.Model.AlertPolicy")
+local RuntimeLinks = ns.BootstrapRuntimeLinks or require("WhisperMessenger.Core.Bootstrap.RuntimeLinks")
 local ChatPrint = ns.ChatPrint or require("WhisperMessenger.Util.ChatPrint")
 local Localization = ns.Localization or require("WhisperMessenger.Locale.Localization")
 local SecretValue = ns.SecretValue or require("WhisperMessenger.Util.SecretValue")
@@ -166,7 +167,7 @@ local function loseLine(state, line)
 end
 
 local function trackIncoming(runtime, state, line, result)
-  if AlertPolicy.ShouldAlert(result, accountSettings(runtime)) then
+  if AlertPolicy.ShouldAlert(result, accountSettings(runtime), RuntimeLinks.PrimaryConversation(runtime, result.conversationKey)) then
     state.anyAlert = true
     if result.conversationKey then
       state.alertKeys[result.conversationKey] = true

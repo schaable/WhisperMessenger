@@ -54,4 +54,14 @@ return function()
     assert(RuntimeLinks.SameThread(runtime, CHAR, ALT) == true, "two characters of the same friend")
     assert(RuntimeLinks.SameThread(runtime, FRIEND, OTHER) == false, "different people")
   end
+
+  -- test_primary_conversation_is_the_record_a_key_is_shown_in
+  do
+    local runtime = linkedRuntime()
+    local friend = runtime.store.conversations[FRIEND]
+    assert(RuntimeLinks.PrimaryConversation(runtime, CHAR) == friend, "a linked character shows in the friend's record")
+    assert(RuntimeLinks.PrimaryConversation(runtime, OTHER) == runtime.store.conversations[OTHER], "an unlinked thread is its own")
+    assert(RuntimeLinks.PrimaryConversation({}, CHAR) == nil, "no store, no record")
+    assert(RuntimeLinks.PrimaryConversation(runtime, nil) == nil, "no key, no record")
+  end
 end

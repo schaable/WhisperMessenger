@@ -57,18 +57,33 @@ local function itemMatchesSearch(item, terms)
 
   -- Terms only ever get crossed off, so re-checking the previous sender
   -- can't match anything new; skip it to avoid lowering it again.
-  local lastPlayerName = nil
-  for _, message in ipairs((item.conversation or {}).messages or {}) do
-    if type(message) == "table" then
-      match(message.text)
-      local playerName = message.playerName
-      if playerName ~= lastPlayerName then
-        match(playerName)
-        lastPlayerName = playerName
+  local function matchMessages(conversation)
+    local lastPlayerName = nil
+    for _, message in ipairs((conversation or {}).messages or {}) do
+      if type(message) == "table" then
+        match(message.text)
+        local playerName = message.playerName
+        if playerName ~= lastPlayerName then
+          match(playerName)
+          lastPlayerName = playerName
+        end
+        if remaining == 0 then
+          return true
+        end
       end
-      if remaining == 0 then
-        return true
-      end
+    end
+    return false
+  end
+
+  if matchMessages(item.conversation) then
+    return true
+  end
+  -- A friend's row also shows their linked characters' chats.
+  for _, member in ipairs(item.linkedMembers or {}) do
+    local conversation = member.conversation or {}
+    match(conversation.displayName)
+    if remaining == 0 or matchMessages(conversation) then
+      return true
     end
   end
 

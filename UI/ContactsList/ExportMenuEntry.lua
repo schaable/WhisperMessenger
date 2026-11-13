@@ -7,10 +7,11 @@ local Localization = ns.Localization or require("WhisperMessenger.Locale.Localiz
 local ConversationExport = ns.ConversationExport or require("WhisperMessenger.Model.ConversationExport")
 local DisplayName = ns.DisplayName or require("WhisperMessenger.Util.DisplayName")
 local LocalPlayer = ns.LocalPlayer or require("WhisperMessenger.Core.LocalPlayer")
+local LinkedThread = ns.LinkedThread or require("WhisperMessenger.Model.LinkedThread")
 
 -- "Export conversation": the conversation as plain text in the export
 -- panel. Any row whose item carries its conversation: whispers, Battle.net,
--- groups and channels.
+-- groups and channels. A friend's row exports its linked characters' lines too.
 local ExportMenuEntry = {}
 
 function ExportMenuEntry.Open(item)
@@ -22,7 +23,7 @@ function ExportMenuEntry.Open(item)
   return ExportPanel.Show({
     title = contactName,
     header = ConversationExport.Header(names),
-    lines = ConversationExport.Lines(item.conversation.messages, names),
+    lines = ConversationExport.Lines(LinkedThread.Merge(item.conversation.messages, item.linkedMembers), names),
   })
 end
 

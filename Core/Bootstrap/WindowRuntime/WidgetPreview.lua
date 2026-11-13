@@ -17,6 +17,32 @@ function WidgetPreview.Create(options)
   local runtimeStore = options.runtimeStore or {}
   local badgeFilter = options.badgeFilter or BadgeFilter
 
+  -- The newer of latest and conversation's last incoming whisper, shown on
+  -- item's row. face names and colors it: the row itself, or a linked
+  -- character's own record. thread is the row's conversation, whose Mute counts.
+  local function newerPreview(latest, item, face, conversation, thread, includeQuiet)
+    if type(conversation) ~= "table" or not (includeQuiet or AlertPolicy.ShouldAlert(conversation, accountState.settings, thread)) then
+      return latest
+    end
+    local sentAt = tonumber(conversation.lastIncomingAt)
+    local messageText = conversation.lastIncomingPreview
+    if not sentAt or type(messageText) ~= "string" or messageText == "" or (latest and sentAt <= latest.sentAt) then
+      return latest
+    end
+    local senderName = DisplayName.Format(conversation.lastIncomingSender or face.displayName or conversation.displayName)
+    if type(senderName) ~= "string" or senderName == "" then
+      return latest
+    end
+    return {
+      sentAt = sentAt,
+      conversationKey = item.conversationKey,
+      senderName = senderName,
+      messageText = AddonGreetingText.ForIncomingPreview(conversation, messageText),
+      classTag = face.classTag or conversation.classTag,
+      channel = item.channel,
+    }
+  end
+
   -- includeQuiet: also count muted chats and message requests (used to
   -- acknowledge, so unmuting or accepting later never pops a message that
   -- was already on screen).
@@ -30,22 +56,13 @@ function WidgetPreview.Create(options)
       -- Group chats never produce a widget preview — per user requirement,
       -- the popup is reserved for whispers. Muted whispers and message requests
       -- never pop it either.
-      if not badgeFilter.IsGroupChannel(item.channel) and (includeQuiet or AlertPolicy.ShouldAlert(conversation, accountState.settings)) then
-        local sentAt = conversation and tonumber(conversation.lastIncomingAt) or nil
-        local messageText = conversation and conversation.lastIncomingPreview or nil
-        if sentAt and type(messageText) == "string" and messageText ~= "" then
-          local senderName = DisplayName.Format(conversation.lastIncomingSender or item.displayName or conversation.displayName)
-          if type(senderName) == "string" and senderName ~= "" then
-            if latest == nil or sentAt > latest.sentAt then
-              latest = {
-                sentAt = sentAt,
-                conversationKey = item.conversationKey,
-                senderName = senderName,
-                messageText = AddonGreetingText.ForIncomingPreview(conversation, messageText),
-                classTag = item.classTag or conversation.classTag,
-                channel = item.channel,
-              }
-            end
+      if not badgeFilter.IsGroupChannel(item.channel) then
+        latest = newerPreview(latest, item, item, conversation, conversation, includeQuiet)
+        -- A friend's row also shows their linked characters' whispers.
+        local members = item.linkedMembers
+        if type(members) == "table" then
+          for _, member in ipairs(members) do
+            latest = newerPreview(latest, item, member.conversation or {}, member.conversation, conversation, includeQuiet)
           end
         end
       end

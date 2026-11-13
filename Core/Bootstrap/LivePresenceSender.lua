@@ -126,11 +126,7 @@ end
 -- Called after every window refresh with the conversation currently on
 -- screen. Receipts are best-effort: a failed send is not retried, so a
 -- refresh storm can never turn into an addon-message storm.
-function Sender.SyncReadReceipts(runtime, selectedContact)
-  if type(runtime) ~= "table" or type(selectedContact) ~= "table" then
-    return false
-  end
-  local key = selectedContact.conversationKey
+local function syncReceipt(runtime, key)
   if key == nil then
     return false
   end
@@ -150,6 +146,22 @@ function Sender.SyncReadReceipts(runtime, selectedContact)
   end
   message.receiptSentAt = nowSeconds(runtime)
   return send(runtime, conversation, LivePresence.EncodeSeen(message.wireId)) == true
+end
+
+-- A linked friend's thread shows its characters' lines too; each thread
+-- gets its own receipt. True when any was sent.
+function Sender.SyncReadReceipts(runtime, selectedContact)
+  if type(runtime) ~= "table" or type(selectedContact) ~= "table" then
+    return false
+  end
+  local sent = syncReceipt(runtime, selectedContact.conversationKey)
+  local members = selectedContact.linkedMembers
+  if type(members) == "table" then
+    for _, member in ipairs(members) do
+      sent = syncReceipt(runtime, member.key) or sent
+    end
+  end
+  return sent
 end
 
 Sender.TYPING_RESEND_INTERVAL = TYPING_RESEND_INTERVAL
