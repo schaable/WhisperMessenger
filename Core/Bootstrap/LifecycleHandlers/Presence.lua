@@ -8,6 +8,7 @@ local Common = ns.BootstrapLifecycleHandlersCommon
   or nil
 local ConversationMerge = ns.ConversationMerge or require("WhisperMessenger.Model.ConversationMerge")
 local ConversationLinks = ns.ConversationLinks or require("WhisperMessenger.Model.ConversationLinks")
+local AutoLink = ns.BootstrapAutoLink or require("WhisperMessenger.Core.Bootstrap.AutoLink")
 local LockdownReplay = ns.BootstrapLockdownReplay or require("WhisperMessenger.Core.Bootstrap.LockdownReplay")
 local OnlineNotify = ns.BootstrapLifecycleHandlersOnlineNotify or require("WhisperMessenger.Core.Bootstrap.LifecycleHandlers.OnlineNotify")
 local ZoneNotify = ns.BootstrapLifecycleHandlersZoneNotify or require("WhisperMessenger.Core.Bootstrap.LifecycleHandlers.ZoneNotify")
@@ -177,6 +178,7 @@ local function refreshBNetConversations(Bootstrap, deps)
     end
   end
 
+  AutoLink.FromFriendScan(Bootstrap.runtime, friendMap, changedKeys)
   refreshAfterBNetScan(Bootstrap, changedKeys)
 end
 

@@ -22,7 +22,7 @@ All releases: **2.1.x (current)** · [2.0.x](archive/changelog/2.0.md) · [1.4.x
 - Fixed: players who are offline no longer show as online in your contact list and chat header, and cross-faction guild or community members who are online no longer show as offline.
 - Fixed: letters the game's default font doesn't have, like the Hungarian ő and ű or the Polish ł, no longer show as squares. Messages, names, quotes, previews, notes and the text and search boxes switch to the game's chat font when the text needs one of them.
 - Fixed: with the compact window open, Craft Alert no longer pops its own alert at the top of the screen for a new lead. The Craft Alert tab shows the new lead, and if you close the window soon after, the preview shows on the button.
-- Whispers from a Battle.net friend and from the characters they play can now share one conversation with that friend. Every message shows up in order, marked "via Battle.net" or "via Whisper", and your chat list shows just the friend with the newest message and every unread whisper from all of them.
+- Whispers from a Battle.net friend and from the characters they play now come together in one conversation with that friend. This happens on its own once you have a chat with both and the game shows which character your friend is playing. Every message shows up in order, marked "via Battle.net" or "via Whisper", and your chat list shows just the friend with the newest message and every unread whisper from all of them.
 - Right-click a character's chat and pick "Link to Battle.net friend" to move it into that friend's conversation yourself. Right-click the friend and pick "Unlink character" to split it out again; no messages are lost either way.
 
 ## [2.1.6] - 2026-11-10

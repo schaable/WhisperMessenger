@@ -16,6 +16,7 @@ local LivePayload = ns.BootstrapEventBridgeLivePayload or require("WhisperMessen
 local GroupRouter = ns.BootstrapEventBridgeGroupRouter or require("WhisperMessenger.Core.Bootstrap.EventBridge.GroupRouter")
 local ChannelRouter = ns.BootstrapEventBridgeChannelRouter or require("WhisperMessenger.Core.Bootstrap.EventBridge.ChannelRouter")
 local IncomingAlerts = ns.BootstrapEventBridgeIncomingAlerts or require("WhisperMessenger.Core.Bootstrap.EventBridge.IncomingAlerts")
+local AutoLink = ns.BootstrapAutoLink or require("WhisperMessenger.Core.Bootstrap.AutoLink")
 -- stylua: ignore end
 
 local EventBridge = {}
@@ -70,6 +71,12 @@ local function scheduleTypingExpiry(runtime, refreshWindow, conversationKey)
   end
   runtime.typingExpiryPending[conversationKey] = true
   timer.After(LivePresence.TYPING_TTL + TYPING_EXPIRY_GRACE, fire)
+end
+
+-- Links learned from the stored whisper. The whisper is already filed, so a
+-- learner error must not cost it its alerts and refresh.
+local function learnLinks(runtime, eventName, payload, result)
+  pcall(AutoLink.AfterWhisper, runtime, eventName, payload, result)
 end
 
 local function applyIncomingEffects(runtime, result)
@@ -138,6 +145,7 @@ function EventBridge.RouteLiveEvent(runtime, refreshWindow, eventName, ...)
   end
 
   local result, resultMeta = EventRouter.HandleEvent(runtime, eventName, payload)
+  learnLinks(runtime, eventName, payload, result)
   local convertedReactionControl = resultMeta and resultMeta.reactionControl == true
   local changedSetReaction = type(resultMeta) == "table" and resultMeta.reactionChanged == true and resultMeta.reactionOperation == "set"
   local shouldApplyIncomingEffects = result
@@ -189,7 +197,9 @@ function EventBridge.RouteReplayedEvent(runtime, refreshWindow, eventName, recei
       refreshWindow(degradedConversation.conversationKey)
     end
   end
-  return EventRouter.HandleEvent(runtime, eventName, payload)
+  local result, resultMeta = EventRouter.HandleEvent(runtime, eventName, payload)
+  learnLinks(runtime, eventName, payload, result)
+  return result, resultMeta
 end
 
 function EventBridge.RouteGroupEvent(runtime, eventName, ...)
