@@ -549,6 +549,8 @@ local Korean = {
   ["The channels you tick in the Chats settings show up here. Pick a channel on the left."] = "채팅 설정에서 선택한 채널이 여기에 표시됩니다. 왼쪽에서 채널을 선택하세요.",
   -- Contact menu: copy a profile link
   ["Copy profile link"] = "프로필 링크 복사",
+  ["Link to Battle.net friend"] = "Battle.net 친구와 연결",
+  ["Unlink character"] = "캐릭터 연결 해제",
   ["Armory"] = "전투정보실",
   ["Press Ctrl+C to copy the link."] = "Ctrl+C를 눌러 링크를 복사하세요.",
   ["Press Ctrl+C to copy the name."] = "Ctrl+C를 눌러 이름을 복사하세요.",

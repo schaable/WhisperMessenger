@@ -81,6 +81,7 @@ function ContactsWiring.Create(factory, options)
     onIgnorePlayer = windowOptions.onIgnorePlayer,
     onUnblockPlayer = windowOptions.onUnblockPlayer,
     isPlayerBlocked = windowOptions.isPlayerBlocked,
+    linkActions = windowOptions.linkActions,
     whoPlayer = windowOptions.whoPlayer,
     onReorder = windowOptions.onReorder,
     onAllContactsRefreshed = function(allContacts)

@@ -549,6 +549,8 @@ local Italian = {
   ["The channels you tick in the Chats settings show up here. Pick a channel on the left."] = "I canali che spunti nelle impostazioni Chat compaiono qui. Scegli un canale a sinistra.",
   -- Contact menu: copy a profile link
   ["Copy profile link"] = "Copia link del profilo",
+  ["Link to Battle.net friend"] = "Collega a un amico Battle.net",
+  ["Unlink character"] = "Scollega personaggio",
   ["Armory"] = "Armeria",
   ["Press Ctrl+C to copy the link."] = "Premi Ctrl+C per copiare il link.",
   ["Press Ctrl+C to copy the name."] = "Premi Ctrl+C per copiare il nome.",

@@ -105,6 +105,7 @@ local SAVED_SPOT_KEYS = {
   "The window opens where you last moved it. Turn it off to open the window at the floating button, and move the button along when you move the window. Only while Dock button on the window is on.",
 }
 local LANGUAGE_RELOAD_KEY = "Reload the interface now to apply the language change?"
+local LINK_MENU_KEYS = { "Link to Battle.net friend", "Unlink character" }
 
 -- "%s|%d" for "Last seen %s ... %d"; "%%" is a literal percent, not a slot.
 local function formatSlots(text)
@@ -240,6 +241,11 @@ return function()
 
     -- test_open_at_saved_spot_strings_are_translated
     for _, key in ipairs(SAVED_SPOT_KEYS) do
+      assert(type(catalog[key]) == "string" and catalog[key] ~= "", code .. " is missing a translation for '" .. key .. "'")
+    end
+
+    -- test_link_menu_strings_are_translated
+    for _, key in ipairs(LINK_MENU_KEYS) do
       assert(type(catalog[key]) == "string" and catalog[key] ~= "", code .. " is missing a translation for '" .. key .. "'")
     end
 

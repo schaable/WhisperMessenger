@@ -17,6 +17,7 @@ local GuildInviteMenuEntry = ns.ContactsListGuildInviteMenuEntry or require("Whi
 local PickerPopup = ns.PickerPopup or require("WhisperMessenger.UI.Shared.PickerPopup")
 local ProfileLinksMenuEntry = ns.ContactsListProfileLinksMenuEntry or require("WhisperMessenger.UI.ContactsList.ProfileLinksMenuEntry")
 local ProtectedMenuEntries = ns.ContactsListProtectedMenuEntries or require("WhisperMessenger.UI.ContactsList.ProtectedMenuEntries")
+local LinkMenuEntry = ns.ContactsListLinkMenuEntry or require("WhisperMessenger.UI.ContactsList.LinkMenuEntry")
 
 local ContextMenu = {}
 
@@ -125,6 +126,7 @@ local function addWhisperMessengerEntries(_owner, rootDescription, contextData)
   GuildInviteMenuEntry.Add(rootDescription, item)
   BlockMenuEntry.Add(rootDescription, item, rowActions)
   ProfileLinksMenuEntry.Add(rootDescription, profileLinks)
+  LinkMenuEntry.Add(rootDescription, item, rowActions)
   addRowActionButtons(rootDescription, item, rowActions)
 end
 

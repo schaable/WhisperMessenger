@@ -20,6 +20,7 @@ local PositionSlots = ns.BootstrapWindowRuntimePositionSlots or require("Whisper
 local WhoTriggers = ns.BootstrapWindowRuntimeWhoTriggers or require("WhisperMessenger.Core.Bootstrap.WindowRuntime.WhoTriggers")
 local AddonAlerts = ns.BootstrapWindowRuntimeAddonAlerts or require("WhisperMessenger.Core.Bootstrap.WindowRuntime.AddonAlerts")
 local GameWhisperTab = ns.BootstrapWindowRuntimeGameWhisperTab or require("WhisperMessenger.Core.Bootstrap.WindowRuntime.GameWhisperTab")
+local LinkActions = ns.BootstrapWindowRuntimeLinkActions or require("WhisperMessenger.Core.Bootstrap.WindowRuntime.LinkActions")
 
 local WindowCallbacks = {}
 
@@ -211,6 +212,7 @@ function WindowCallbacks.Create(options)
     end,
 
     onRemove = removeConversation,
+    linkActions = LinkActions.Create({ runtime = runtime, refreshWindow = refreshWindow, selectConversation = selectConversation }),
 
     -- Request banner: Accept moves it to Whispers and keeps it open there.
     onAcceptRequest = function(item)

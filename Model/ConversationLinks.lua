@@ -56,14 +56,17 @@ local function isPrimary(state, key)
   return false
 end
 
+-- An allowed pair that makes no chain: a member never becomes a primary, a
+-- primary never becomes a member.
+local function canLinkIn(state, memberKey, primaryKey)
+  return ConversationLinks.CanLink(memberKey, primaryKey) and state.links[primaryKey] == nil and not isPrimary(state, memberKey)
+end
+
 -- A character is linked to one friend at most. "auto" never re-points an
 -- already-linked character to another friend and never relinks a pair the
 -- player split up; "manual" can do both. Returns true when the pair is linked.
 function ConversationLinks.Link(state, memberKey, primaryKey, source, now)
-  if not ConversationLinks.CanLink(memberKey, primaryKey) then
-    return false
-  end
-  if state.links[primaryKey] ~= nil or isPrimary(state, memberKey) then
+  if not canLinkIn(state, memberKey, primaryKey) then
     return false
   end
   local existing = state.links[memberKey]
@@ -90,6 +93,19 @@ function ConversationLinks.Unlink(state, memberKey)
   state.links[memberKey] = nil
   state.unlinked[memberKey] = entry.primaryKey
   return entry.primaryKey
+end
+
+-- Threads memberKey can be linked to by hand, sorted: exactly the ones a
+-- manual Link accepts.
+function ConversationLinks.Targets(state, conversations, memberKey)
+  local targets = {}
+  for key in pairs(conversations) do
+    if canLinkIn(state, memberKey, key) then
+      targets[#targets + 1] = key
+    end
+  end
+  table.sort(targets)
+  return targets
 end
 
 -- The thread a key is shown in: its primary while both threads exist,

@@ -275,6 +275,7 @@ UI/ContactsList/AddFriendMenuEntry.lua
 UI/ContactsList/GuildInviteMenuEntry.lua
 UI/ContactsList/NotifyMenuEntries.lua
 UI/ContactsList/ProtectedMenuEntries.lua
+UI/ContactsList/LinkMenuEntry.lua
 UI/ContactsList/ContextMenu.lua
 UI/ContactsList/HoverPointer.lua
 UI/ContactsList/RowHoverOverlay.lua
@@ -557,6 +558,7 @@ Core/Bootstrap/WindowRuntime/PositionSlots.lua
 Core/Bootstrap/WindowRuntime/WhoTriggers.lua
 Core/Bootstrap/WindowRuntime/AddonAlerts.lua
 Core/Bootstrap/WindowRuntime/ContactPrefsUpdate.lua
+Core/Bootstrap/WindowRuntime/LinkActions.lua
 Core/Bootstrap/WindowRuntime/WindowCallbacks.lua
 Core/Bootstrap/WindowRuntime/IconRuntime.lua
 Core/Bootstrap/WindowRuntime/MinimapIconRuntime.lua
