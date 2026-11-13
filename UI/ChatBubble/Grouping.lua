@@ -29,6 +29,11 @@ function Grouping.ShouldGroup(prev, current)
   if prev.addonGreeting ~= nil then
     return false
   end
+  -- A linked thread mixes Battle.net and character whispers; each route gets
+  -- its own label. Older lines without a channel still group.
+  if prev.channel ~= nil and current.channel ~= nil and prev.channel ~= current.channel then
+    return false
+  end
   if (prev.playerName or prev.senderDisplayName) ~= (current.playerName or current.senderDisplayName) then
     return false
   end

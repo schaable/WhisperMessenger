@@ -237,6 +237,7 @@ local Spanish = {
   ["Guild"] = "Hermandad",
   ["Officer"] = "Oficial",
   ["Battle.net Group"] = "Grupo Battle.net",
+  ["Battle.net"] = "Battle.net",
   ["Channel"] = "Canal",
   ["Community"] = "Comunidad",
   ["Show unread badge"] = "Mostrar contador de no leídos",

@@ -237,6 +237,7 @@ local TraditionalChinese = {
   ["Guild"] = "公會",
   ["Officer"] = "幹部",
   ["Battle.net Group"] = "戰網群組",
+  ["Battle.net"] = "戰網",
   ["Channel"] = "頻道",
   ["Community"] = "社群",
   ["Show unread badge"] = "顯示未讀徽章",

@@ -12,6 +12,7 @@ local LevelColor = ns.LevelColor or require("WhisperMessenger.UI.LevelColor")
 local PlayerMenuClick = ns.ChatBubblePlayerMenuClick or require("WhisperMessenger.UI.ChatBubble.PlayerMenuClick")
 local AddonGreetingText = ns.ChatBubbleAddonGreetingText or require("WhisperMessenger.UI.ChatBubble.AddonGreetingText")
 local GlyphCoverage = ns.ThemeGlyphCoverage or require("WhisperMessenger.UI.Theme.GlyphCoverage")
+local ChannelTag = ns.ChatBubbleChannelTag or require("WhisperMessenger.UI.ChatBubble.ChannelTag")
 local setFontObject = UIHelpers.setFontObject
 local setTextColor = UIHelpers.setTextColor
 
@@ -56,6 +57,65 @@ local function applyGreetingBadge(frame, message, anchor)
   badgeFS:SetPoint("LEFT", anchor, "RIGHT", Theme.LAYOUT.MESSAGE_TIMESTAMP_GAP, 0)
 end
 
+local function goldFontString(frame, cacheKey, text)
+  local fs = ensureFontString(frame, cacheKey)
+  setFontObject(fs, Theme.FONTS.message_time)
+  setTextColor(fs, Theme.TAG_GOLD)
+  -- Player names may need the chat font's Latin Extended letters.
+  fs:SetText(GlyphCoverage.Apply(fs, text))
+  return fs
+end
+
+-- The "- via ..." tag (ChannelTag), unanchored; nil when the label has none.
+local function applyChannelTag(frame, message, options)
+  local text = ChannelTag.Text(message, options)
+  if text == nil then
+    hideCached(frame, "_wmSenderTagFS")
+    return nil
+  end
+  return goldFontString(frame, "_wmSenderTagFS", text)
+end
+
+local function currentPlayerName()
+  if type(_G.UnitName) ~= "function" then
+    return nil
+  end
+  local ok, name = pcall(_G.UnitName, "player")
+  if ok and type(name) == "string" and name ~= "" then
+    return name
+  end
+  return nil
+end
+
+-- Cross-character outgoing: a gold "- <CharName>" suffix, unanchored; nil
+-- when the line was sent from the character you are on now (resolved at
+-- render time, so same-character messages stay plain).
+local function applyAltName(frame, message)
+  local senderName = message.senderName
+  local current = currentPlayerName()
+  if type(senderName) ~= "string" or senderName == "" or current == nil or current == senderName then
+    hideCached(frame, "_wmSenderCharnameFS")
+    return nil
+  end
+  return goldFontString(frame, "_wmSenderCharnameFS", "- " .. senderName)
+end
+
+-- Outgoing name, right to left: [alt name] [channel tag] You.
+local function anchorOutgoingName(frame, nameFS, message, options)
+  local altFS = applyAltName(frame, message)
+  local tagFS = applyChannelTag(frame, message, options)
+  local anchor, anchorPoint, gap = frame, "RIGHT", -Theme.LAYOUT.MESSAGE_EDGE_INSET
+  if altFS then
+    altFS:SetPoint("RIGHT", anchor, anchorPoint, gap, 0)
+    anchor, anchorPoint, gap = altFS, "LEFT", -4
+  end
+  if tagFS then
+    tagFS:SetPoint("RIGHT", anchor, anchorPoint, gap, 0)
+    anchor, anchorPoint, gap = tagFS, "LEFT", -4
+  end
+  nameFS:SetPoint("RIGHT", anchor, anchorPoint, gap, 0)
+end
+
 -- The label's time: a collapsed repeat shows when it was last seen.
 function SenderLabel.ShownTimestamp(message)
   if (tonumber(message.repeatCount) or 1) > 1 and message.lastSeenAt ~= nil then
@@ -90,36 +150,9 @@ function SenderLabel.CreateSenderLabel(factory, contentFrame, message, paneWidth
 
   if message.direction == "out" then
     nameFS:SetText(Localization.Text("You"))
-
-    -- Cross-character outgoing: append a gold "· <CharName>" suffix that
-    -- mirrors the incoming "· via <Channel>" tag. Resolved at render time
-    -- against the current player, so same-character messages stay plain.
-    local attachedCharname = false
-    if type(message.senderName) == "string" and message.senderName ~= "" then
-      local currentPlayerName
-      if type(_G.UnitName) == "function" then
-        local ok, name = pcall(_G.UnitName, "player")
-        if ok and type(name) == "string" and name ~= "" then
-          currentPlayerName = name
-        end
-      end
-      if currentPlayerName and currentPlayerName ~= message.senderName then
-        local charnameFS = ensureFontString(frame, "_wmSenderCharnameFS")
-        setFontObject(charnameFS, Theme.FONTS.message_time)
-        setTextColor(charnameFS, Theme.TAG_GOLD) -- match channel tag gold
-        charnameFS:SetText(GlyphCoverage.Apply(charnameFS, "- " .. message.senderName))
-        charnameFS:SetPoint("RIGHT", frame, "RIGHT", -Theme.LAYOUT.MESSAGE_EDGE_INSET, 0)
-        nameFS:SetPoint("RIGHT", charnameFS, "LEFT", -4, 0)
-        attachedCharname = true
-      end
-    end
-    if not attachedCharname then
-      hideCached(frame, "_wmSenderCharnameFS")
-      nameFS:SetPoint("RIGHT", frame, "RIGHT", -Theme.LAYOUT.MESSAGE_EDGE_INSET, 0)
-    end
-    -- Outgoing labels never show the channel tag or a greeting badge; hide
-    -- them if this pooled frame previously rendered an incoming message.
-    hideCached(frame, "_wmSenderTagFS")
+    anchorOutgoingName(frame, nameFS, message, options)
+    -- Outgoing labels never show a greeting badge; hide it if this pooled
+    -- frame previously rendered an incoming message.
     hideCached(frame, "_wmSenderGreetingFS")
     timeFS:SetPoint("RIGHT", nameFS, "LEFT", -Theme.LAYOUT.MESSAGE_TIMESTAMP_GAP, 0)
     -- "(Not sent)" / "(Queued)", or else the "Seen" receipt from a peer
@@ -153,17 +186,12 @@ function SenderLabel.CreateSenderLabel(factory, contentFrame, message, paneWidth
     -- pooled frame previously rendered an outgoing cross-char message.
     hideCached(frame, "_wmSenderCharnameFS")
 
-    -- Channel tag as a separate colored FontString (e.g. "· via Trade")
+    -- Channel tag as a separate colored FontString (e.g. "- via Trade")
     local channelAnchor = nameFS
-    if message.channelLabel and message.channelLabel ~= "" then
-      local tagFS = ensureFontString(frame, "_wmSenderTagFS")
-      setFontObject(tagFS, Theme.FONTS.message_time)
-      setTextColor(tagFS, Theme.TAG_GOLD)
-      tagFS:SetText("- " .. Localization.Text("via ") .. Localization.Text(message.channelLabel))
+    local tagFS = applyChannelTag(frame, message, options)
+    if tagFS then
       tagFS:SetPoint("LEFT", nameFS, "RIGHT", 4, 0)
       channelAnchor = tagFS
-    else
-      hideCached(frame, "_wmSenderTagFS")
     end
 
     timeFS:SetPoint("LEFT", channelAnchor, "RIGHT", Theme.LAYOUT.MESSAGE_TIMESTAMP_GAP, 0)

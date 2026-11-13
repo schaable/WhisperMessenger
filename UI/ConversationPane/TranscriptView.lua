@@ -153,6 +153,7 @@ local function layoutOptions(transcript)
   end
   options.fallbackClassTag = transcript.fallbackClassTag
   options.senderFallbackClassTag = transcript.senderFallbackClassTag
+  options.linkedThread = transcript.linkedThread
   options.unreadDividerMessage = transcript.unreadDividerMessage
   options.onRevealCensored = transcript._onRevealCensored
   options.onReact = transcript.onReact

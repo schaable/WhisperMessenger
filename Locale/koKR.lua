@@ -237,6 +237,7 @@ local Korean = {
   ["Guild"] = "길드",
   ["Officer"] = "관리자",
   ["Battle.net Group"] = "Battle.net 그룹",
+  ["Battle.net"] = "Battle.net",
   ["Channel"] = "채널",
   ["Community"] = "커뮤니티",
   ["Show unread badge"] = "안 읽음 뱃지 표시",

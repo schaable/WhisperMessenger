@@ -11,6 +11,7 @@ local Hyperlinks = ns.UIHyperlinks or require("WhisperMessenger.UI.Hyperlinks")
 local MessageReplies = ns.MessageReplies or require("WhisperMessenger.Model.MessageReplies")
 local PlayerMenu = ns.ChatBubblePlayerMenu or require("WhisperMessenger.UI.ChatBubble.PlayerMenu")
 local IgnorePrompt = ns.IgnorePrompt or require("WhisperMessenger.UI.Shared.IgnorePrompt")
+local PaneMessages = ns.ConversationPaneMessages or require("WhisperMessenger.UI.ConversationPane.PaneMessages")
 local sizeValue = UIHelpers.sizeValue
 
 local TranscriptSetup = {}
@@ -27,8 +28,9 @@ function TranscriptSetup.BindMessageActions(transcript, view, onMessageAction)
   transcript.onMessageAction = function(message, action)
     return onMessageAction(view._selectedContact, message, action)
   end
+  -- A linked character's line would need that character's own route.
   transcript.canReply = function(message)
-    return MessageReplies.CanReply(view._selectedContact and view._selectedContact.channel, message)
+    return not PaneMessages.IsMemberLine(view, message) and MessageReplies.CanReply(view._selectedContact and view._selectedContact.channel, message)
   end
   transcript.onReply = function(message)
     return onMessageAction(view._selectedContact, message, "reply")

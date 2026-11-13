@@ -96,4 +96,23 @@ return function()
     local current = inMsg("Bob", 150)
     assert(Grouping.ShouldGroup(prev, current) == false, "a follow-up never groups under an addon greeting")
   end
+
+  -- test_lines_from_different_channels_never_group
+  -- A linked thread mixes Battle.net and character whispers; each keeps its
+  -- own label (and channel tag), even when the names happen to match.
+  do
+    local prev = inMsg("Jaina", 100)
+    prev.channel = "BN"
+    local current = inMsg("Jaina", 150)
+    current.channel = "WOW"
+    assert(Grouping.ShouldGroup(prev, current) == false, "a channel change starts a new group")
+  end
+
+  -- test_a_line_without_channel_still_groups
+  do
+    local prev = inMsg("Bob", 100)
+    local current = inMsg("Bob", 150)
+    current.channel = "WOW"
+    assert(Grouping.ShouldGroup(prev, current) == true, "older lines without a channel still group")
+  end
 end

@@ -237,6 +237,7 @@ local Russian = {
   ["Guild"] = "Гильдия",
   ["Officer"] = "Офицер",
   ["Battle.net Group"] = "Группа Battle.net",
+  ["Battle.net"] = "Battle.net",
   ["Channel"] = "Канал",
   ["Community"] = "Сообщество",
   ["Show unread badge"] = "Показывать счетчик непрочитанных",

@@ -11,7 +11,7 @@ local HeaderView = ns.ConversationPaneHeaderView or require("WhisperMessenger.UI
 local TranscriptSetup = ns.ConversationPaneTranscriptSetup or require("WhisperMessenger.UI.ConversationPane.TranscriptSetup")
 local HeaderMenu = ns.ConversationPaneHeaderMenu or require("WhisperMessenger.UI.ConversationPane.HeaderMenu")
 local EdgeFade = ns.ConversationPaneEdgeFade or require("WhisperMessenger.UI.ConversationPane.EdgeFade")
-local ChannelContextMerger = ns.ConversationPaneChannelContextMerger or require("WhisperMessenger.UI.ConversationPane.ChannelContextMerger")
+local PaneMessages = ns.ConversationPaneMessages or require("WhisperMessenger.UI.ConversationPane.PaneMessages")
 local BottomBanner = ns.ConversationPaneBottomBanner or require("WhisperMessenger.UI.ConversationPane.BottomBanner")
 local RequestBanner = ns.ConversationPaneRequestBanner or require("WhisperMessenger.UI.ConversationPane.RequestBanner")
 local ReplyBanner = ns.ConversationPaneReplyBanner or require("WhisperMessenger.UI.ConversationPane.ReplyBanner")
@@ -38,10 +38,13 @@ local transcriptIsAtEnd = TranscriptView.IsAtEnd
 
 ConversationPane.Refresh = function(view, selectedContact, conversation, status, noticeText)
   local selectedConversationKey = selectedContact and selectedContact.conversationKey or nil
-  if view._selectedConversationKey ~= selectedConversationKey then
+  -- Linking or unlinking the open chat changes every label (route tags).
+  local linked = PaneMessages.IsLinked(selectedContact)
+  if view._selectedConversationKey ~= selectedConversationKey or view._linkedThread ~= linked then
     TranscriptView.Reset(view.transcript)
   end
   view._selectedConversationKey = selectedConversationKey
+  view._linkedThread = linked
   view._selectedContact = selectedContact
   view._conversation = conversation
   view._status = status
@@ -58,9 +61,7 @@ ConversationPane.Refresh = function(view, selectedContact, conversation, status,
   -- The pause notice shows exactly while chat is locked: queued bubbles
   -- offer Send now only without it.
   view.transcript.chatLocked = (noticeText or "") ~= ""
-  local isContextShown = view.isChannelContextShown == nil or view.isChannelContextShown() == true
-  local messages = ChannelContextMerger.ForPane(conversation and conversation.messages or {}, selectedContact, conversation, isContextShown)
-  ConversationPane.RenderTranscript(view.transcript, messages)
+  ConversationPane.RenderTranscript(view.transcript, PaneMessages.Build(view, selectedContact, conversation))
   ConversationPane.SetStatus(view, status)
   ConversationPane.SetNotice(view, noticeText)
   ConversationPane.RefreshActiveStatus(view, conversation and conversation.activeStatus or nil)
@@ -241,7 +242,7 @@ function ConversationPane.Create(factory, parent, selectedContact, conversation,
 
   if type(options.canReact) == "function" then
     transcript.canReact = function(message)
-      return options.canReact(view._selectedContact, message)
+      return not PaneMessages.IsMemberLine(view, message) and options.canReact(view._selectedContact, message)
     end
   end
 

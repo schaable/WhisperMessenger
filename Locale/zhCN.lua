@@ -237,6 +237,7 @@ local SimplifiedChinese = {
   ["Guild"] = "公会",
   ["Officer"] = "官员",
   ["Battle.net Group"] = "战网群组",
+  ["Battle.net"] = "战网",
   ["Channel"] = "频道",
   ["Community"] = "社区",
   ["Show unread badge"] = "显示未读徽章",
