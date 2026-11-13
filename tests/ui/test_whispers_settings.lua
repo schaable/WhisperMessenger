@@ -10,6 +10,7 @@ local WHISPER_LABELS = {
   "Auto-open on incoming whisper",
   "Auto-open on outgoing whisper",
   "Put whispers from strangers in Requests",
+  "Link Battle.net friends' characters",
   "Share typing status",
   "Send read receipts",
   "Show invite link",
@@ -33,13 +34,16 @@ end
 return function()
   Localization.Configure({ language = "enUS" })
 
-  -- test_shows_exactly_the_eleven_whisper_toggles
+  -- test_shows_exactly_the_listed_whisper_toggles
   do
     local result = create({})
     for _, label in ipairs(WHISPER_LABELS) do
       assert(FindUI.toggle(result.frame, label) ~= nil, "missing whisper toggle: " .. label)
     end
-    assert(FindUI.countToggles(result.frame) == #WHISPER_LABELS, "expected 11 toggles, got " .. FindUI.countToggles(result.frame))
+    assert(
+      FindUI.countToggles(result.frame) == #WHISPER_LABELS,
+      "expected " .. #WHISPER_LABELS .. " toggles, got " .. FindUI.countToggles(result.frame)
+    )
   end
 
   -- test_behavior_no_longer_shows_whisper_toggles

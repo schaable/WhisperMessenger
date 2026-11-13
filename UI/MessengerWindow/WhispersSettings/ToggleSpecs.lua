@@ -15,6 +15,7 @@ ToggleSpecs.DEFAULTS = {
   autoOpenIncoming = false,
   autoOpenOutgoing = false,
   requestsInbox = false,
+  autoLinkBattleNetCharacters = true,
   shareTypingStatus = true,
   shareReadReceipts = true,
   showInviteLink = true,
@@ -95,6 +96,20 @@ function ToggleSpecs.Build(config, onChange)
         text("Put whispers from strangers in Requests"),
         text(
           "Whispers from players who are not your friends, guildmates or group members wait quietly in a Requests tab: no sound, no pop-up, no badge."
+        ),
+      },
+    },
+    {
+      key = "autoLinkBattleNetCharacters",
+      labelKey = "Link Battle.net friends' characters",
+      initial = config.autoLinkBattleNetCharacters ~= false,
+      onChange = function(value)
+        onChange("autoLinkBattleNetCharacters", value)
+      end,
+      tooltipLines = {
+        text("Link Battle.net friends' characters"),
+        text(
+          "Puts a Battle.net friend's character chats into your chat with that friend on their own. Turning it off keeps the links already made: right-click your friend's chat to unlink a character."
         ),
       },
     },

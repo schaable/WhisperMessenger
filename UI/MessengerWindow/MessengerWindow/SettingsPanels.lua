@@ -86,6 +86,7 @@ function SettingsPanels.Create(factory, options)
         autoOpenIncoming = settingsConfig.autoOpenIncoming,
         autoOpenOutgoing = settingsConfig.autoOpenOutgoing,
         requestsInbox = settingsConfig.requestsInbox,
+        autoLinkBattleNetCharacters = settingsConfig.autoLinkBattleNetCharacters,
         shareTypingStatus = settingsConfig.shareTypingStatus,
         shareReadReceipts = settingsConfig.shareReadReceipts,
         showInviteLink = settingsConfig.showInviteLink,

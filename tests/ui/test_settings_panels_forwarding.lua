@@ -64,6 +64,7 @@ return function()
     allowAddonIntegration = false,
     showGroupChats = false,
     requestsInbox = true,
+    autoLinkBattleNetCharacters = false,
     quickReplies = { "brb" },
     shareTypingStatus = false,
     shareReadReceipts = false,
@@ -156,6 +157,7 @@ return function()
   assert(whispersCapture.config.autoOpenIncoming == true, "whispers config should carry autoOpenIncoming")
   assert(whispersCapture.config.autoOpenOutgoing == true, "whispers config should carry autoOpenOutgoing")
   assert(whispersCapture.config.requestsInbox == true, "whispers config should carry requestsInbox")
+  assert(whispersCapture.config.autoLinkBattleNetCharacters == false, "whispers config should carry autoLinkBattleNetCharacters")
   assert(whispersCapture.config.shareTypingStatus == false, "whispers config should carry shareTypingStatus")
   assert(whispersCapture.config.shareReadReceipts == false, "whispers config should carry shareReadReceipts")
   assert(whispersCapture.config.showInviteLink == false, "whispers config should carry showInviteLink")
