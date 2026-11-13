@@ -14,6 +14,7 @@ local RequestFollow = ns.BootstrapWindowCoordinatorRequestFollow or require("Whi
 local IncomingRefresh = ns.BootstrapWindowCoordinatorIncomingRefresh or require("WhisperMessenger.Core.Bootstrap.WindowCoordinator.IncomingRefresh")
 local ZoneNotify = ns.BootstrapLifecycleHandlersZoneNotify or require("WhisperMessenger.Core.Bootstrap.LifecycleHandlers.ZoneNotify")
 -- stylua: ignore end
+local RuntimeLinks = ns.BootstrapRuntimeLinks or require("WhisperMessenger.Core.Bootstrap.RuntimeLinks")
 
 local STATUS_REFRESH_INTERVAL = 30
 local AVAILABILITY_THROTTLE_SECONDS = 10
@@ -252,7 +253,8 @@ function WindowCoordinator.Create(options)
 
     if coordinator.isWindowVisible() and window then
       local selectedConversationKey = nextState.selectedContact and nextState.selectedContact.conversationKey or nil
-      if affectedConversationKey and selectedConversationKey and selectedConversationKey ~= affectedConversationKey and window.refreshContacts then
+      local otherThread = not RuntimeLinks.SameThread(runtime, selectedConversationKey, affectedConversationKey)
+      if affectedConversationKey and selectedConversationKey and otherThread and window.refreshContacts then
         window.refreshContacts(nextState.contacts, selectedConversationKey)
       elseif window.refreshSelection then
         window.refreshSelection(nextState)

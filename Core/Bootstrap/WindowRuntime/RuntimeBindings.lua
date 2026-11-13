@@ -7,6 +7,7 @@ local ConversationDrafts = ns.ConversationDrafts or require("WhisperMessenger.Mo
 local ContactInfo = ns.ContactInfo or require("WhisperMessenger.Model.ContactInfo")
 local ChatCover = ns.BootstrapWindowCoordinatorChatCover or require("WhisperMessenger.Core.Bootstrap.WindowCoordinator.ChatCover")
 local PanelRegistry = ns.BootstrapWindowRuntimePanelRegistry or require("WhisperMessenger.Core.Bootstrap.WindowRuntime.PanelRegistry")
+local RuntimeLinks = ns.BootstrapRuntimeLinks or require("WhisperMessenger.Core.Bootstrap.RuntimeLinks")
 
 local RuntimeBindings = {}
 
@@ -73,9 +74,12 @@ function RuntimeBindings.Apply(options)
     end
   end
 
-  -- A panel or the options pane over the window leaves the chat unseen.
+  -- A panel or the options pane over the window leaves the chat unseen. A
+  -- linked character's thread is open while its friend's thread is.
   runtime.isConversationOpen = function(conversationKey)
-    return controller.isWindowVisible() and runtime.activeConversationKey == conversationKey and not ChatCover.IsCovered(getWindow())
+    return controller.isWindowVisible()
+      and RuntimeLinks.SameThread(runtime, runtime.activeConversationKey, conversationKey)
+      and not ChatCover.IsCovered(getWindow())
   end
 
   runtime.icon = icon

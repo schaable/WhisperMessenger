@@ -4,6 +4,7 @@ if type(ns) ~= "table" then
 end
 
 local MessageRequests = ns.MessageRequests or require("WhisperMessenger.Model.MessageRequests")
+local RuntimeLinks = ns.BootstrapRuntimeLinks or require("WhisperMessenger.Core.Bootstrap.RuntimeLinks")
 
 local ConversationSelector = {}
 
@@ -28,11 +29,24 @@ local function firstUnreadMessage(conversation)
   return found
 end
 
+-- A linked thread's first unread line: the oldest of each thread's own first
+-- unread line (the opened thread wins a tie).
+local function firstUnreadInThread(runtime, conversation, memberKeys)
+  local first = conversation and firstUnreadMessage(conversation) or nil
+  for _, memberKey in ipairs(memberKeys) do
+    local candidate = firstUnreadMessage(runtime.store.conversations[memberKey])
+    if candidate ~= nil and (first == nil or (candidate.sentAt or 0) < (first.sentAt or 0)) then
+      first = candidate
+    end
+  end
+  return first
+end
+
 -- "New messages" divider (session only, never saved): set when a conversation
 -- opens with unread messages, kept while it stays selected, dropped when
 -- another conversation opens.
-local function updateUnreadDivider(runtime, conversationKey, conversation)
-  local message = conversation and firstUnreadMessage(conversation) or nil
+local function updateUnreadDivider(runtime, conversationKey, conversation, memberKeys)
+  local message = firstUnreadInThread(runtime, conversation, memberKeys)
   if message ~= nil then
     runtime.unreadDivider = { conversationKey = conversationKey, message = message }
   elseif runtime.unreadDivider and runtime.unreadDivider.conversationKey ~= conversationKey then
@@ -70,15 +84,21 @@ function ConversationSelector.Create(options)
 
   function selector.selectConversation(conversationKey)
     local store = runtime.store
+    -- A linked character's thread is shown inside its friend's thread.
+    conversationKey = RuntimeLinks.PrimaryOf(runtime, conversationKey)
+    local memberKeys = RuntimeLinks.MembersOf(runtime, conversationKey)
     local conversation = conversationKey ~= nil and store.conversations[conversationKey] or nil
     showRequestsTab(runtime, conversation)
 
     runtime.activeConversationKey = conversationKey
     characterState.activeConversationKey = conversationKey
-    updateUnreadDivider(runtime, conversationKey, conversation)
+    updateUnreadDivider(runtime, conversationKey, conversation, memberKeys)
 
     if conversation ~= nil then
       markConversationRead(store, conversationKey)
+      for _, memberKey in ipairs(memberKeys) do
+        markConversationRead(store, memberKey)
+      end
 
       if conversation.guid then
         presenceCache.RefreshPresence(conversation.guid)

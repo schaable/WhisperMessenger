@@ -489,6 +489,7 @@ UI/MessengerWindow/MessengerWindow/SavedStateApply.lua
 UI/MessengerWindow/MessengerWindow.lua
 
 Core/Bootstrap/RuntimeFactory.lua
+Core/Bootstrap/RuntimeLinks.lua
 Core/Bootstrap/EventBridge/Registration.lua
 Core/Bootstrap/EventBridge/LivePayload.lua
 Core/Bootstrap/EventBridge/IncomingAlerts.lua
